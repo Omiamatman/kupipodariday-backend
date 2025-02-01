@@ -15,7 +15,6 @@ export class UpdateWishDto {
 
   @IsString()
   @IsUrl()
-  @IsOptional()
   link: string;
 
   @IsString()

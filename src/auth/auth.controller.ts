@@ -1,25 +1,49 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  UnsupportedMediaTypeException,
+} from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { LocalGuard } from 'src/guards/auth.guard';
 import { AuthService } from './auth.service';
 
-@Controller()
+@Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UsersService,
   ) {}
 
-  @UseGuards(LocalGuard)
   @Post('signin')
-  signin(@Req() req) {
+  @UseGuards(LocalGuard)
+  @HttpCode(HttpStatus.OK)
+  async signin(@Req() req) {
+    const acceptHeader = req.headers['accept'];
+    if (!acceptHeader || !acceptHeader.includes('application/json')) {
+      throw new UnsupportedMediaTypeException('Unsupported Media Type');
+    }
+
     return this.authService.auth(req.user);
   }
 
   @Post('signup')
-  async signup(@Body() createUserDto: CreateUserDto) {
-    const user = await this.userService.create(createUserDto);
-    return this.authService.auth(user);
+  @HttpCode(HttpStatus.CREATED)
+  async signup(@Body() createUserDto: CreateUserDto, @Req() req) {
+    const acceptHeader = req.headers['accept'];
+    if (!acceptHeader || !acceptHeader.includes('application/json')) {
+      throw new UnsupportedMediaTypeException('Unsupported Media Type');
+    }
+
+    const createdUser = await this.userService.create(createUserDto);
+    return {
+      ...createdUser,
+      access_token: this.authService.auth({ id: createdUser.id }).access_token,
+    };
   }
 }

@@ -23,7 +23,7 @@ export class Wishlist {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.wishlist)
+  @ManyToOne(() => User, (user) => user.wishlists)
   user: User;
 
   @Column()

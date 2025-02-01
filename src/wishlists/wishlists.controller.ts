@@ -1,5 +1,4 @@
 import {
-  ParseIntPipe,
   Controller,
   UseGuards,
   Delete,
@@ -9,6 +8,10 @@ import {
   Post,
   Get,
   Req,
+  HttpCode,
+  HttpStatus,
+  UnsupportedMediaTypeException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
@@ -18,34 +21,64 @@ import { JwtGuard } from '../guards/jwt.guard';
 @Controller('wishlistlists')
 @UseGuards(JwtGuard)
 export class WishlistsController {
-  constructor(private readonly wishlistService: WishlistsService) {}
+  constructor(private readonly wishlistsService: WishlistsService) {}
 
   @Post()
-  create(@Body() createWishlistDto: CreateWishlistDto, @Req() req) {
-    return this.wishlistService.create(createWishlistDto, req.user.id);
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createWishlistDto: CreateWishlistDto, @Req() req) {
+    const acceptHeader = req.headers['accept'];
+    if (!acceptHeader || !acceptHeader.includes('application/json')) {
+      throw new UnsupportedMediaTypeException('Unsupported Media Type');
+    }
+
+    return this.wishlistsService.create(createWishlistDto, req.user.id);
   }
 
   @Get()
-  findAll() {
-    return this.wishlistService.findAll();
+  @HttpCode(HttpStatus.OK)
+  async findAll(@Req() req) {
+    const acceptHeader = req.headers['accept'];
+    if (!acceptHeader || !acceptHeader.includes('application/json')) {
+      throw new UnsupportedMediaTypeException('Unsupported Media Type');
+    }
+
+    return this.wishlistsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.wishlistService.findOneWishlist(id);
+  @HttpCode(HttpStatus.OK)
+  async findOne(@Param('id', ParseIntPipe) id: number, @Req() req) {
+    const acceptHeader = req.headers['accept'];
+    if (!acceptHeader || !acceptHeader.includes('application/json')) {
+      throw new UnsupportedMediaTypeException('Unsupported Media Type');
+    }
+
+    return this.wishlistsService.findOne(id);
   }
 
   @Patch(':id')
-  update(
+  @HttpCode(HttpStatus.OK)
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateWishlistDto: UpdateWishlistDto,
     @Req() req,
   ) {
-    return this.wishlistService.update(id, updateWishlistDto, req.user.id);
+    const acceptHeader = req.headers['accept'];
+    if (!acceptHeader || !acceptHeader.includes('application/json')) {
+      throw new UnsupportedMediaTypeException('Unsupported Media Type');
+    }
+
+    return this.wishlistsService.update(id, updateWishlistDto, req.user.id);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number, @Req() req) {
-    return this.wishlistService.remove(id, req.user.id);
+  @HttpCode(HttpStatus.OK)
+  async remove(@Param('id', ParseIntPipe) id: number, @Req() req) {
+    const acceptHeader = req.headers['accept'];
+    if (!acceptHeader || !acceptHeader.includes('application/json')) {
+      throw new UnsupportedMediaTypeException('Unsupported Media Type');
+    }
+
+    return this.wishlistsService.remove(id, req.user.id);
   }
 }

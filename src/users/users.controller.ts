@@ -7,8 +7,8 @@ import {
   Post,
   Get,
   Req,
+  NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { JwtGuard } from '../guards/jwt.guard';
@@ -18,19 +18,9 @@ import { JwtGuard } from '../guards/jwt.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
   @Get('me')
   getCurrentUser(@Req() req) {
     return this.usersService.findOne(req.user.id);
-  }
-
-  @Get('me/wishes')
-  getCurrentUserWishes(@Req() req) {
-    return this.usersService.getUserWishes(req.user.username);
   }
 
   @Patch('me')
@@ -38,9 +28,20 @@ export class UsersController {
     return this.usersService.updateOne(req.user.id, updateUserDto);
   }
 
+  @Get('me/wishes')
+  getCurrentUserWishes(@Req() req) {
+    return this.usersService.getUserWishes(req.user.username);
+  }
+
   @Get(':username')
-  findOne(@Param('username') username: string) {
-    return this.usersService.findByUsername(username);
+  async findOne(@Param('username') username: string) {
+    const user = await this.usersService.findByUsername(username);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
   }
 
   @Get(':username/wishes')

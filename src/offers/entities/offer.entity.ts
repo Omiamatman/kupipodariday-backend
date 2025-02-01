@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Wish } from 'src/wishes/entities/wish.entity';
 import { User } from 'src/users/entities/user.entity';
-import { IsBoolean } from 'class-validator';
+import { IsBoolean, IsNumber } from 'class-validator';
 
 @Entity()
 export class Offer {
@@ -28,6 +28,7 @@ export class Offer {
   item: Wish;
 
   @Column('decimal')
+  @IsNumber()
   amount: number;
 
   @Column({ default: false })

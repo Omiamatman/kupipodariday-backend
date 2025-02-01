@@ -27,13 +27,12 @@ export class User {
   username: string;
 
   @Column({ default: 'He hasnt said anything about himself yet' })
-  @Length(2, 200)
+  @Length(1, 200)
   @IsOptional()
   about: string;
 
   @Column({ default: 'https://i.pravatar.cc/300' })
   @IsUrl()
-  @IsOptional()
   avatar: string;
 
   @Column({ unique: true })
@@ -50,5 +49,5 @@ export class User {
   offers: Offer[];
 
   @OneToMany(() => Wishlist, (wishlist) => wishlist.user)
-  wishlist: Wishlist[];
+  wishlists: Wishlist[];
 }

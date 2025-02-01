@@ -8,11 +8,11 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @Length(2, 30)
+  @Length(1, 64)
   @IsString()
   username: string;
 
-  @Length(2, 200)
+  @Length(1, 200)
   @IsOptional()
   about: string;
 
